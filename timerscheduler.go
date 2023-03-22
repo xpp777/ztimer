@@ -1,7 +1,6 @@
 package ztimer
 
 import (
-	"go.uber.org/zap"
 	"math"
 	"sync"
 	"time"
@@ -193,7 +192,9 @@ func (ts *TimerScheduler) Start() {
 			for tID, timer := range timerList {
 				if math.Abs(float64(now-timer.unixTs)) > MaxTimeDelay {
 					//已经超时的定时器，报警
-					zap.S().Error("want call at ", timer.unixTs, "; real call at", now, "; delay ", now-timer.unixTs)
+					// zap.S().Error("want call at ", timer.unixTs, "; real call at", now, "; delay ", now-timer.unixTs)
+					ts.triggerChan <- timer.delayFunc
+					continue
 				}
 				if ts.HasTimer(tID) {
 					//将超时触发函数写入管道
